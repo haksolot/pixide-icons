@@ -6,10 +6,12 @@ on:
     paths:
       - packages/pixide-react/**
       - converter/**
+      - icons/pixel/**
   pull_request:
     paths:
       - packages/pixide-react/**
       - converter/**
+      - icons/pixel/**
 
 jobs:
   build:
@@ -23,9 +25,19 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: packages/pixide-react/package-lock.json
+          cache-dependency-path: |
+            converter/package-lock.json
+            packages/pixide-react/package-lock.json
 
-      - name: Install dependencies
+      - name: Install converter deps
+        run: npm install
+        working-directory: converter
+
+      - name: Generate icon TypeScript files
+        run: node generate-ts.mjs
+        working-directory: converter
+
+      - name: Install pixide-react deps
         run: npm install
         working-directory: packages/pixide-react
 

@@ -3,7 +3,7 @@ name: Publish to npm
 on:
   push:
     tags:
-      - 'pixide-react@*'   # trigger: git tag pixide-react@0.1.0
+      - 'pixide-react@*'
 
 permissions:
   contents: read
@@ -21,9 +21,19 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
           cache: npm
-          cache-dependency-path: packages/pixide-react/package-lock.json
+          cache-dependency-path: |
+            converter/package-lock.json
+            packages/pixide-react/package-lock.json
 
-      - name: Install dependencies
+      - name: Install converter deps
+        run: npm install
+        working-directory: converter
+
+      - name: Generate icon TypeScript files
+        run: node generate-ts.mjs
+        working-directory: converter
+
+      - name: Install pixide-react deps
         run: npm install
         working-directory: packages/pixide-react
 
