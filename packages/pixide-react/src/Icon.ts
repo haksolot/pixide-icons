@@ -3,7 +3,7 @@
 import { createElement, forwardRef, useMemo } from 'react';
 import { svgAttributes, GRID_SIZE } from './defaultAttributes';
 import { PixelGrid, PixideProps } from './types';
-import { mergeClasses, hasA11yProp } from '@lucide/shared';
+import { mergeClasses, hasA11yProp } from './utils';
 import { usePixideContext } from './context';
 import { unpackGrid, gridToRects } from './grid';
 

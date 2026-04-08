@@ -1,3 +1,1 @@
-export * from './aliases';
-export * from './prefixed';
-export * from './suffixed';
+// No aliases in pixide-react

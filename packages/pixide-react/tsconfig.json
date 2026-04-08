@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
     "strict": true,
-    "declaration": false,
+    "declaration": true,
     "noEmitOnError": true,
     "noEmit": true,
-    "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "module": "ESNext",
     "target": "ESNext",
     "esModuleInterop": true,
@@ -14,13 +13,8 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "allowImportingTsExtensions": true,
-    "downlevelIteration": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "jsx": "react-jsx",
-    "types": ["@testing-library/jest-dom"],
+    "jsx": "react-jsx"
   },
-  "exclude": ["**/node_modules"],
-  "include": ["src", "tests"],
+  "exclude": ["**/node_modules", "dist"],
+  "include": ["src"]
 }

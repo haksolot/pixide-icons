@@ -1,127 +1,59 @@
-import plugins from '@lucide/rollup-plugins';
+import resolve from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
 import preserveDirectives from 'rollup-plugin-preserve-directives';
-import pkg from './package.json' with { type: 'json' };
 import dts from 'rollup-plugin-dts';
-import getAliasesEntryNames from './scripts/getAliasesEntryNames.mts';
 
-const aliasesEntries = await getAliasesEntryNames();
+const input = 'src/pixide-react.ts';
+const external = ['react', 'react/jsx-runtime'];
 
-const packageName = 'PixideReact';
-const outputFileName = 'pixide-react';
-const inputs = [`src/pixide-react.ts`];
-const bundles = [
-  {
-    format: 'cjs',
-    inputs,
-    outputDir: 'dist/cjs',
-  },
-  {
-    format: 'esm',
-    inputs,
-    outputDir: 'dist/esm',
-    preserveModules: true,
-  },
-  {
-    format: 'esm',
-    inputs: ['src/dynamicIconImports.ts', 'src/DynamicIcon.ts', ...aliasesEntries],
-    outputDir: 'dist/esm',
-    external: [/src/],
-    preserveModules: true,
-    paths: (id) => {
-      if (id.match(/src/)) {
-        const [, modulePath] = id.match(/src\/(.*)\.ts/);
-        return `./${modulePath}.js`;
-      }
-    },
-  },
-  {
-    format: 'esm',
-    inputs: ['src/dynamic.ts'],
-    outputFile: 'dynamic.mjs',
-    external: [/src/],
-    paths: (id) => {
-      if (id.match(/src/)) {
-        const [, modulePath] = id.match(/src\/(.*)\.ts/);
-        return `dist/esm/${modulePath}.js`;
-      }
-    },
-  },
-];
-
-const configs = bundles
-  .map(
-    ({
-      inputs,
-      outputDir,
-      outputFile,
-      format,
-      minify,
-      preserveModules,
-      entryFileNames,
-      external = [],
-      paths,
-    }) =>
-      inputs.map((input) => ({
-        input,
-        plugins: [
-          ...plugins({ pkg, minify }),
-          preserveDirectives({
-            include: ['src/pixide-react.ts', 'src/DynamicIcon.ts', 'src/context.ts', 'src/Icon.ts'],
-            suppressPreserveModulesWarning: true,
-          }),
-        ],
-        external: ['react', 'prop-types', ...external],
-        output: {
-          name: packageName,
-          ...(preserveModules
-            ? { dir: outputDir }
-            : { file: outputFile ?? `${outputDir}/${outputFileName}.js` }),
-          paths,
-          entryFileNames,
-          format,
-          sourcemap: true,
-          preserveModules,
-          preserveModulesRoot: 'src',
-          globals: {
-            react: 'react',
-            'prop-types': 'PropTypes',
-          },
-        },
-      })),
-  )
-  .flat();
+const typescriptPlugin = () =>
+  typescript({
+    tsconfig: './tsconfig.json',
+    declaration: false,
+    declarationMap: false,
+  });
 
 export default [
+  // ESM — tree-shakeable, preserve modules
   {
-    input: 'src/dynamicIconImports.ts',
-    output: [
-      { file: `dynamicIconImports.d.ts`, format: 'es' },
-      { file: `dynamicIconImports.d.mts`, format: 'es' },
+    input,
+    external,
+    plugins: [
+      resolve(),
+      typescriptPlugin(),
+      preserveDirectives({
+        include: ['src/pixide-react.ts', 'src/context.ts', 'src/Icon.ts'],
+        suppressPreserveModulesWarning: true,
+      }),
     ],
-    plugins: [dts()],
+    output: {
+      dir: 'dist/esm',
+      format: 'esm',
+      sourcemap: true,
+      preserveModules: true,
+      preserveModulesRoot: 'src',
+    },
   },
+
+  // CJS — single file
   {
-    input: 'src/dynamic.ts',
-    output: [
-      { file: `dynamic.d.ts`, format: 'es' },
-      { file: `dynamic.d.mts`, format: 'es' },
-    ],
-    plugins: [dts()],
+    input,
+    external,
+    plugins: [resolve(), typescriptPlugin()],
+    output: {
+      file: 'dist/cjs/pixide-react.js',
+      format: 'cjs',
+      sourcemap: true,
+    },
   },
+
+  // Type declarations
   {
-    input: inputs[0],
-    output: [{ file: `dist/${outputFileName}.d.ts`, format: 'es' }],
+    input,
     plugins: [dts()],
+    output: {
+      file: 'dist/pixide-react.d.ts',
+      format: 'es',
+    },
   },
-  {
-    input: `src/${outputFileName}.suffixed.ts`,
-    output: [{ file: `dist/${outputFileName}.suffixed.d.ts`, format: 'es' }],
-    plugins: [dts()],
-  },
-  {
-    input: `src/${outputFileName}.prefixed.ts`,
-    output: [{ file: `dist/${outputFileName}.prefixed.d.ts`, format: 'es' }],
-    plugins: [dts()],
-  },
-  ...configs,
 ];

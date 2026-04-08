@@ -1,5 +1,5 @@
 import { createElement, forwardRef } from 'react';
-import { mergeClasses, toKebabCase, toPascalCase } from '@lucide/shared';
+import { mergeClasses, toKebabCase, toPascalCase } from './utils';
 import { PixelGrid, PixideProps } from './types';
 import Icon from './Icon';
 
