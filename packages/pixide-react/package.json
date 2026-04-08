@@ -1,7 +1,7 @@
 {
   "name": "pixide-react",
   "description": "Pixel-style icon library for React — 1694 icons, fill-based, tree-shakeable.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "ISC",
   "homepage": "https://github.com/haksolot/pixide-icons",
   "repository": {
